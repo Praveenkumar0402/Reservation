@@ -64,14 +64,11 @@ public class User implements UserDetails {
         roles = user.getRoles();
     }
 
-    @OneToMany(mappedBy = "users")
-    @ToString.Exclude
-    private List<Booking> bookings;
-
+    private List<GrantedAuthority> authorities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return authorities;
     }
 
     @Override
