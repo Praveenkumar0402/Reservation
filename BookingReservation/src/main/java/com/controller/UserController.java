@@ -3,7 +3,7 @@ package com.controller;
 import com.entity.User;
 import com.model.JwtRequest;
 import com.model.JwtResponse;
-import com.security.JwtHelper;
+import com.service.JwtService;
 import com.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class UserController {
     @Autowired
     private UserService userService;
     @Autowired
-    private JwtHelper jwtHelper;
+    private JwtService jwtService;
 
     private Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -42,7 +42,7 @@ public class UserController {
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request) {
         this.doAuthenticate(request.getEmail(), request.getPassword());
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
-        String token = this.jwtHelper.generateToken(userDetails);
+        String token = this.jwtService.generateToken(userDetails);
         JwtResponse response = JwtResponse.builder()
                 .jwtToken(token)
                 .username(userDetails.getUsername()).build();

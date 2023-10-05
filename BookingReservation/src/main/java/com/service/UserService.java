@@ -1,6 +1,7 @@
 package com.service;
 
 import com.entity.User;
+import com.entity.UserInfo;
 import com.exceptions.NoUsersFoundException;
 import com.exceptions.ObjectNotValid;
 import com.repository.UserRepository;
@@ -118,7 +119,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         //load user from database
         Optional<User> user = userRepository.findByEmail(username);
-        return user.map(User::new).orElseThrow(() -> new RuntimeException("UserName Not Found"+username));
+        return user.map(UserInfo::new).orElseThrow(() -> new RuntimeException("UserName Not Found"+username));
     }
 
 }
