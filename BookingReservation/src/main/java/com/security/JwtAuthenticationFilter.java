@@ -1,5 +1,6 @@
 package com.security;
 
+import com.service.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
@@ -7,8 +8,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,7 +23,7 @@ import java.io.IOException;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
-    private JwtHelper jwtHelper;
+    private JwtService jwtService;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -39,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (requestHeader != null && requestHeader.startsWith("Bearer")) {
             token = requestHeader.substring(7);
             try {
-                username = this.jwtHelper.getUsernameFromToken(token);
+                username = this.jwtService.getUsernameFromToken(token);
             } catch (IllegalArgumentException e) {
                 logger.info("Illegal Argument while fetching the username !!");
                 e.printStackTrace();
@@ -58,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             //fetch user detail from username
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            Boolean validateToken = this.jwtHelper.validateToken(token, userDetails);
+            Boolean validateToken = this.jwtService.validateToken(token, userDetails);
             if (validateToken) {
                 //set the authentication
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
