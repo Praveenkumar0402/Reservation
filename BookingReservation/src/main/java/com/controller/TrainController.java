@@ -22,7 +22,7 @@ public class TrainController {
     TrainService trainservice;
 
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAuthority('User')")
     public ResponseEntity<List<TrainDto>> trainsAll() {
         List<TrainDto> trainDto = trainservice.getAllTrain();
         return ResponseEntity.status(HttpStatus.OK).body(trainDto);
