@@ -35,7 +35,7 @@ public class Booking {
     @Column(name = "booking_status")
     private String Bookingstatus;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "state_of_travel")
     private StateOfTravel Stateoftravel;
 

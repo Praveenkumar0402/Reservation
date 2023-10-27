@@ -5,23 +5,22 @@ import com.entity.UserInfo;
 import com.exceptions.NoUsersFoundException;
 import com.exceptions.ObjectNotValid;
 import com.repository.UserRepository;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletResponse;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContextException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 @Service
 public class UserService implements UserDetailsService {
@@ -32,10 +31,27 @@ public class UserService implements UserDetailsService {
     PasswordEncoder passwordEncoder;
 
 
-    public List<User> findAll() {
+    public User createUser(User user) throws Exception {
+        User user1 = new User();
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new Exception("Username Already exist");
+        } else {
+            user1.setEmail(user.getEmail());
+            user1.setPassword(passwordEncoder.encode(user.getPassword()));
+            user1.setRoles(user.getRoles());
+            return userRepository.save(user1);
+        }
+    }
+
+    public List<User> getusers() {
+        return userRepository.findAll();
+    }
+
+
+    public List<User> findAll() throws ExpiredJwtException {
         List<User> user = userRepository.findallusers();
         if (user.isEmpty()) {
-            throw new NoUsersFoundException("no flights found");
+            throw new NoUsersFoundException("no users found");
         } else {
             List<User> user1 = new ArrayList<>();
             for (User user2 : user) {
@@ -83,43 +99,12 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    public void generateExcel(HttpServletResponse response) throws IOException {
-        List<User> users = userRepository.findAll();
-        HSSFWorkbook hssfWorkbook = new HSSFWorkbook();
-        HSSFSheet sheet = hssfWorkbook.createSheet("User details");
-        HSSFRow row = sheet.createRow(0);
-        row.createCell(0).setCellValue("id");
-        row.createCell(1).setCellValue("first_name");
-        row.createCell(2).setCellValue("last_name");
-        row.createCell(3).setCellValue("gender");
-        row.createCell(4).setCellValue("email");
-        row.createCell(5).setCellValue("password");
-        row.createCell(6).setCellValue("mobile");
-        row.createCell(7).setCellValue("userstatus");
-        row.createCell(8).setCellValue("roles");
-        int rowindex = 1;
-        for (User user : users) {
-            HSSFRow row1 = sheet.createRow(rowindex);
-            row1.createCell(0).setCellValue(user.getId());
-            row1.createCell(1).setCellValue(user.getFirstname());
-            row1.createCell(2).setCellValue(user.getLastname());
-            row1.createCell(3).setCellValue(user.getGender().ordinal());
-            row1.createCell(4).setCellValue(user.getEmail());
-            row1.createCell(5).setCellValue(user.getPassword());
-            row1.createCell(6).setCellValue(user.getMobile());
-            row1.createCell(7).setCellValue(user.getUserstatus().ordinal());
-            row1.createCell(8).setCellValue(user.getRoles());
-            rowindex++;
-        }
-        ServletOutputStream servletOutputStream = response.getOutputStream();
-        hssfWorkbook.write(servletOutputStream);
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         //load user from database
         Optional<User> user = userRepository.findByEmail(username);
-        return user.map(UserInfo::new).orElseThrow(() -> new RuntimeException("UserName Not Found"+username));
+        return user.map(UserInfo::new).orElseThrow(() -> new RuntimeException("UserName Not Found" + username));
     }
 
 }

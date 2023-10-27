@@ -33,7 +33,7 @@ public class User {
     @Column(name = "last_name")
     private String lastname;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender")
     private Gender gender;
 
@@ -45,7 +45,7 @@ public class User {
     @Column(name = "mobile")
     private String mobile;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "userstatus")
     private UserStatus userstatus;
 
